@@ -11,53 +11,41 @@
 
 ## 系统架构
 
-```
-                              ┌──────────────────┐
-                              │   论文上传        │
-                              │   PDF / TXT      │
-                              └────────┬─────────┘
-                                       │
-                                       ▼
-                              ┌──────────────────┐
-                              │   Paper Parser   │
-                              │   文本提取 + 预处理 │
-                              └────────┬─────────┘
-                                       │
-              ┌────────────────────────┼────────────────────────┐
-              │                        │                        │
-              ▼                        ▼                        ▼
-      ┌──────────────┐        ┌──────────────┐        ┌──────────────┐
-      │   知识库      │        │  模型策略     │        │  CodeArts    │
-      │   (企业规范)  │        │  (智能路由)   │        │  (华为云)     │
-      └──────┬───────┘        └──────┬───────┘        └──────┬───────┘
-              │                      │                       │
-              └──────────────────────┼───────────────────────┘
-                                     │
-                                     ▼
-                    ┌─────────────────────────────────┐
-                    │         Orchestrator             │
-                    │        流水线编排引擎              │
-                    └─────────────────────────────────┘
-                                     │
-              ┌──────────────────────┼──────────────────────┐
-              │                      │                      │
-              ▼                      ▼                      ▼
-      ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
-      │  析微 Agent   │ ───→ │  明途 Agent   │ ───→ │  智策 Agent   │
-      │  技术理解      │      │  场景匹配      │      │  执行输出      │
-      │               │      │               │      │               │
-      │ · 探针参数提取 │      │ · 科室推荐     │      │ · 临床方案    │
-      │ · 靶点识别    │      │ · 平台匹配     │      │ · 融资计划    │
-      └──────────────┘      └──────────────┘      └──────┬───────┘
-                                                          │
-                                                          ▼
-                                             ┌─────────────────────┐
-                                             │      输出结果        │
-                                             │                     │
-                                             │ · 临床试验设计方案    │
-                                             │ · 创新器械融资计划书  │
-                                             │ · 完整 JSON 报告     │
-                                             └─────────────────────┘
+```mermaid
+flowchart TD
+    INPUT["📄 论文上传<br/>PDF / TXT"]
+    PARSER["📋 Paper Parser<br/>文本提取 + 预处理"]
+    KB["📚 知识库<br/>企业规范注入"]
+    STRATEGY["🧠 模型策略<br/>智能路由"]
+    CODEARTS["☁️ CodeArts<br/>华为云联动"]
+    ORCH["⚙️ Orchestrator<br/>流水线编排引擎"]
+    XIWEI["🔬 析微 Agent<br/>技术理解"]
+    MINGTU["🏥 明途 Agent<br/>场景匹配"]
+    ZHICE["📝 智策 Agent<br/>执行输出"]
+    OUTPUT["📦 输出结果<br/>临床方案 | 融资计划 | JSON"]
+
+    INPUT --> PARSER
+    PARSER --> KB
+    PARSER --> STRATEGY
+    PARSER --> CODEARTS
+    KB --> ORCH
+    STRATEGY --> ORCH
+    CODEARTS --> ORCH
+    ORCH --> XIWEI
+    XIWEI -->|"探针参数 / 靶点数据"| MINGTU
+    MINGTU -->|"科室 / 平台推荐"| ZHICE
+    ZHICE --> OUTPUT
+
+    style INPUT fill:#e1f5fe
+    style PARSER fill:#e1f5fe
+    style KB fill:#fff3e0
+    style STRATEGY fill:#fff3e0
+    style CODEARTS fill:#fff3e0
+    style ORCH fill:#f3e5f5
+    style XIWEI fill:#e8f5e9
+    style MINGTU fill:#e8f5e9
+    style ZHICE fill:#e8f5e9
+    style OUTPUT fill:#c8e6c9
 ```
 
 ### 三个 Agent
