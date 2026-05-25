@@ -1,0 +1,24 @@
+{
+  "enabled": false,
+  "knowledge_dir": "knowledge/knowledge",
+  "files": [
+    {
+      "file_path": "knowledge/knowledge/tech_understanding/医疗探针技术规范.txt",
+      "target_agents": ["tech_understanding"],
+      "content_type": "enterprise_standard",
+      "max_length": 10000
+    },
+    {
+      "file_path": "knowledge/knowledge/scene_matching/手术机器人兼容性标准.txt",
+      "target_agents": ["scene_matching"],
+      "content_type": "enterprise_standard",
+      "max_length": 10000
+    },
+    {
+      "file_path": "knowledge/knowledge/execution_output/NMPA临床试验规范.txt",
+      "target_agents": ["execution_output"],
+      "content_type": "enterprise_standard",
+      "max_length": 10000
+    }
+  ]
+}

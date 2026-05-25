@@ -1,0 +1,13 @@
+{
+  "name": "medical-agent-harmonyos",
+  "version": "1.0.0",
+  "description": "智慧医疗Agent - 鸿蒙端应用",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "@ohos.httpclient": "2.2.4",
+    "@ohos.net.http": "2.2.4",
+    "@ohos.websocket": "2.0.2"
+  }
+}

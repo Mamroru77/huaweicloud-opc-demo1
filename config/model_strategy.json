@@ -1,0 +1,10 @@
+{
+  "mode": "auto",
+  "agent_mapping": {
+    "tech_understanding": ["codearts-pangu", "deepseek-chat"],
+    "scene_matching": ["deepseek-chat", "gpt-4o"],
+    "execution_output": ["gpt-4o", "deepseek-chat"]
+  },
+  "fallback_models": ["deepseek-chat", "gpt-4o"],
+  "switch_threshold": 3
+}

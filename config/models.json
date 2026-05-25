@@ -1,0 +1,34 @@
+{
+  "models": [
+    {
+      "model_name": "codearts-pangu",
+      "api_key": "",
+      "base_url": "https://console.huaweicloud.com/api-codearts/v1",
+      "enabled": false,
+      "priority": 10,
+      "provider": "codearts",
+      "max_tokens": 4096,
+      "timeout": 30
+    },
+    {
+      "model_name": "deepseek-chat",
+      "api_key": "sk-124c83b0e4c742d4a3f90053a279538b",
+      "base_url": "https://api.deepseek.com/v1",
+      "enabled": true,
+      "priority": 5,
+      "provider": "deepseek",
+      "max_tokens": 4096,
+      "timeout": 30
+    },
+    {
+      "model_name": "gpt-4o",
+      "api_key": "",
+      "base_url": "https://api.openai.com/v1",
+      "enabled": false,
+      "priority": 8,
+      "provider": "openai",
+      "max_tokens": 4096,
+      "timeout": 30
+    }
+  ]
+}

@@ -1,0 +1,269 @@
+转化医学 Agent — 项目操作命令清单
+========================================
+
+=== 启动与运行 ===
+
+# 启动 Web 界面（主要使用方式）
+python -m streamlit run web/app.py
+
+# 命令行模式（传入论文路径）
+python main.py sample_paper.txt
+python main.py 真实论文/fchem-06-00485.pdf
+python main.py 真实论文/chen-et-al-2024-tumor-specific-cascade-recognition-of-activatable-probes-for-fluorescence-navigation-surgery.pdf
+python main.py 真实论文/fonc-09-00727.pdf
+
+
+=== 环境安装 ===
+
+# 安装依赖
+pip install -r requirements.txt
+
+
+=== 缓存管理 ===
+
+# 清除 Python 缓存（Linux/Mac）
+find . -type d -name "__pycache__" -exec rm -rf {} +
+
+# 清除 Python 缓存（Windows PowerShell，码道 IDE）
+Get-ChildItem -Recurse -Directory -Filter "__pycache__" | Remove-Item -Recurse -Force
+
+# 清除项目结果缓存
+rm -rf output/.cache/
+
+
+=== 停止服务 ===
+
+# 停止 Streamlit 进程（Windows PowerShell）
+taskkill /F /IM streamlit.exe
+
+# 停止 Streamlit 进程（Linux/Mac）
+pkill -f streamlit
+
+
+=== 查看结果 ===
+
+# 查看完整 JSON 结果
+cat output/full_result.json
+
+# 查看生成的临床试验方案
+ls output/临床试验设计方案_PhaseI_*.md
+
+# 查看生成的融资计划书
+ls output/创新医疗器械融资计划书_*.md
+
+
+=== 切换模型 ===
+
+方式一：编辑 .env 文件（基础模式）
+
+# 当前使用 DeepSeek
+LLM_API_KEY=sk-124c83b0e4c742d4a3f90053a279538b
+LLM_BASE_URL=https://api.deepseek.com/v1
+LLM_MODEL=deepseek-chat
+
+# 如需切换其他兼容 OpenAI 接口的模型，修改上述三行即可
+# 例如切换到 OpenAI：
+# LLM_API_KEY=sk-your-openai-key
+# LLM_BASE_URL=https://api.openai.com/v1
+# LLM_MODEL=gpt-4o
+
+
+方式二：启用多模型切换（华为云码道特色能力）✨
+
+1. 编辑 .env 文件，启用多模型策略：
+ENABLE_MODEL_STRATEGY=true
+MODEL_STRATEGY_PATH=config/model_strategy.json
+
+2. 编辑 config/models.json，配置多个模型：
+{
+  "models": [
+    {
+      "model_name": "deepseek-chat",
+      "api_key": "sk-124c83b0e4c742d4a3f90053a279538b",
+      "base_url": "https://api.deepseek.com/v1",
+      "enabled": true,
+      "priority": 5,
+      "provider": "deepseek"
+    },
+    {
+      "model_name": "gpt-4o",
+      "api_key": "sk-your-openai-key",
+      "base_url": "https://api.openai.com/v1",
+      "enabled": true,
+      "priority": 8,
+      "provider": "openai"
+    },
+    {
+      "model_name": "codearts-pangu",
+      "api_key": "your-codearts-key",
+      "base_url": "https://console.huaweicloud.com/api-codearts/v1",
+      "enabled": true,
+      "priority": 10,
+      "provider": "codearts"
+    }
+  ]
+}
+
+3. 编辑 config/model_strategy.json，配置策略规则：
+{
+  "mode": "auto",
+  "agent_mapping": {
+    "tech_understanding": ["codearts-pangu", "deepseek-chat"],
+    "scene_matching": ["deepseek-chat", "gpt-4o"],
+    "execution_output": ["gpt-4o", "deepseek-chat"]
+  },
+  "fallback_models": ["deepseek-chat", "gpt-4o"],
+  "switch_threshold": 3
+}
+
+策略说明：
+- 析微Agent：优先使用CodeArts盘古（参数提取能力强）
+- 明途Agent：优先使用DeepSeek（推理能力强）
+- 智策Agent：优先使用GPT-4o（文档生成能力强）
+- 模型连续失败3次自动切换到备用模型
+
+
+=== 华为云码道特色能力 ===
+
+🌟 1. CodeArts生态联动
+
+启用方式：
+ENABLE_CODEARTS_LLM=true
+MODEL_CONFIG_PATH=config/models.json
+
+功能说明：
+- 集成华为云CodeArts LLM服务，支持盘古等自研模型
+- 支持超时控制（默认30秒）和重试机制（最多3次）
+- CodeArts调用失败自动降级到备用模型
+- 记录每次调用的审计日志
+
+
+🌟 2. 私有知识库/企业规范对齐
+
+启用方式：
+ENABLE_KNOWLEDGE_BASE=true
+KNOWLEDGE_CONFIG_PATH=knowledge/knowledge_config.json
+
+知识库结构：
+knowledge/knowledge/
+├── tech_understanding/       # 析微Agent知识
+│   └── 医疗探针技术规范.txt  # 光学性质、体外性能、安全性、靶向策略
+├── scene_matching/           # 明途Agent知识
+│   └── 手术机器人兼容性标准.txt  # 平台分类、技术规格、市场装机量
+└── execution_output/         # 智策Agent知识
+    └── NMPA临床试验规范.txt  # I期试验设计、伦理审查、数据管理
+
+功能说明：
+- 知识库内容自动注入到Agent的system_prompt
+- 支持TXT、MD、JSON格式
+- 懒加载：仅在Agent调用时加载对应知识库
+- 文件内容缓存：避免重复读取
+- 热更新：文件修改后需重启应用生效
+- 长度控制：注入后的总Prompt不超过4096字符
+
+添加新知识库：
+1. 在knowledge/knowledge/对应Agent目录下创建知识文件
+2. 在knowledge/knowledge_config.json中添加配置：
+{
+  "file_path": "knowledge/knowledge/tech_understanding/新知识.txt",
+  "target_agents": ["tech_understanding"],
+  "content_type": "enterprise_standard",
+  "max_length": 10000
+}
+
+
+🌟 3. 多模型切换（已在上面"切换模型"部分说明）
+
+额外功能：
+- 策略化选择：按Agent类型自动选择最适合的模型
+- 手动指定：支持用户手动切换当前模型
+- 故障转移：模型连续失败3次自动切换备用模型
+- 健康检查：启动时验证所有模型可用性
+
+
+🌟 4. 鸿蒙适配
+
+启用方式：
+ENABLE_HARMONY_API=true
+API_HOST=0.0.0.0
+API_PORT=8000
+
+启动FastAPI后端：
+uvicorn api.main:app --host 0.0.0.0 --port 8000
+
+API接口：
+- POST /api/v1/analyze - 上传论文并启动Agent流水线
+- GET /api/v1/analyze/{task_id} - 查询任务状态
+- GET /api/v1/analyze/{task_id}/result - 获取分析结果
+- DELETE /api/v1/analyze/{task_id} - 取消任务
+- GET /api/v1/models - 获取所有可用模型
+- PUT /api/v1/models/switch - 手动切换当前模型
+- GET /api/v1/knowledge - 获取知识库加载状态
+- POST /api/v1/knowledge/refresh - 手动刷新知识库缓存
+- WebSocket /api/v1/ws/{task_id} - 实时进度推送
+
+鸿蒙应用：
+- 目录：harmonyos/entry/src/main/ets/
+- 主页面：pages/Index.ets - 论文上传、实时进度显示
+- 结果页面：pages/ResultView.ets - 析微、明途、智策结果展示，文档下载
+- 组件：components/
+  - UploadCard.ets - 上传卡片组件
+  - ProgressPanel.ets - 进度面板组件（WebSocket连接）
+  - ResultCard.ets - 结果卡片组件
+- 依赖：oh-package.json5（@ohos/httpclient、@ohos/net.http、@ohos/websocket）
+
+跨端运行：
+- 支持手机、平板、电视等鸿蒙设备
+- 响应式布局，自动适配不同屏幕尺寸
+
+
+=== 项目结构速览 ===
+
+项目路径: E:\HuaweiMoveData\Users\HUAWEI\Desktop\XJTLU\Y3\S2\New_Huawei_OPC\for claude use\
+
+三个 Agent:
+  析微 (XiWei) — agents/tech_understanding.py    技术理解，提取探针参数
+  明途 (MingTu) — agents/scene_matching.py        场景匹配，推荐手术平台与科室
+  智策 (ZhiCe) — agents/execution_output.py       执行输出，生成临床方案与融资计划
+
+数据流:
+  上传论文 → 解析PDF/TXT → 析微提取参数 → 明途匹配平台 → 智策生成文档 → 缓存结果
+
+华为云码道特色模块:
+  CodeArts生态联动 — core/codearts_client.py, config/models.json
+  私有知识库对齐 — knowledge/manager.py, knowledge/injector.py
+  多模型切换 — models/manager.py, models/strategy.py, config/model_strategy.json
+  鸿蒙适配 — api/main.py, harmonyos/entry/src/main/ets/
+
+测试用真实论文（真实论文/）:
+  fchem-06-00485.pdf
+  chen-et-al-2024-tumor-specific-cascade-recognition-of-activatable-probes-for-fluorescence-navigation-surgery.pdf
+  fonc-09-00727.pdf
+
+———————————————————————————————————————————————————————
+● streamlit 未识别是因为还没安装依赖。在码道 IDE 中：
+
+  - 终端类型：PowerShell（码道 IDE 默认就是 PowerShell）
+  - 报错原因：Python 包未安装，不是终端类型的问题
+
+  按顺序执行以下步骤：
+
+  第一步：安装依赖
+
+  pip install -r requirements.txt
+
+  第二步：启动
+
+  streamlit run web/app.py
+
+  如果 pip 也报未识别，则改用：
+
+  python -m pip install -r requirements.txt
+  python -m streamlit run web/app.py
+
+  如果仍有问题，检查 Python 版本
+
+  python --version
+
+  应该是 Python 3.10 以上。如果版本过低或 Python 也没识别，需要在码道 IDE
+   中先配置 Python 环境。
