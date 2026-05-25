@@ -1,6 +1,6 @@
 # 转化医学 Agent — 从实验室到临床
 
-[![华为云杯](https://img.shields.io/badge/华为云杯-2026-0052CC)](https://www.huaweicloud.com/)
+[![华为云杯](https://img.shields.io/badge/华为云杯-2026-0052CC)](https://developer.huaweicloud.com/competition/information/1300000255/html1)
 [![HarmonyOS](https://img.shields.io/badge/HarmonyOS-支持-FF0000)](https://developer.huawei.com/consumer/cn/)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB)](https://python.org)
 
